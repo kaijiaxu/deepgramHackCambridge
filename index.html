@@ -8,7 +8,6 @@
 <script src="https://rawgit.com/jasondavies/d3-cloud/master/build/d3.layout.cloud.js"></script>
 
 <body>
-  <p id="status">Not Connected</p>
   <content>
 
   </content>
@@ -21,10 +20,10 @@
       var fill = d3.scale.category20();
       //Construct the word cloud's SVG element
       var svg = d3.select(selector).append("svg")
-        .attr("width", 500)
-        .attr("height", 500)
+        .attr("width", 1400)
+        .attr("height", 700)
         .append("g")
-        .attr("transform", "translate(250,250)");
+        .attr("transform", "translate(700,350)");
 
 
       //Draw the word cloud
@@ -70,7 +69,7 @@
         //The outside world will need to call this function, so make it part
         // of the wordCloud return value.
         update: function (words) {
-          d3.layout.cloud().size([500, 500])
+          d3.layout.cloud().size([1400, 700])
             .words(words)
             .padding(5)
             .rotate(function () { return ~~(Math.random() * 2) * 90; })
@@ -81,6 +80,18 @@
         }
       }
     }
+
+    document.addEventListener('keydown', event => {
+      if (event.keyCode === 81) {
+        STATE_NAME = "QUOTATION";
+      } else if (event.keyCode === 84) {
+        STATE_NAME = "TEXT";
+      } else if (event.keyCode === 87) {
+        STATE_NAME = "WORDCLOUD";
+      }
+      LARGE_TRANSCRIPT = "";
+      render_state();
+    });
 
     function render_wordcloud() {
       document.getElementsByTagName("content")[0].innerHTML = ""
@@ -93,6 +104,34 @@
         instructions.push({ "text": key, "size": 30 + 20 * value })
       }
       wordCloud("content").update(instructions)
+    }
+
+    function render_quotation() {
+      htmlStr = `
+      <div class="container" id="quote-display">
+      <div class="vertical-center"> 
+        <blockquote>
+          <i id = "quote-string"> ${LARGE_TRANSCRIPT} </i> 
+          <br>
+          <i id="quote-author">- Team ProcrastiPoint</i> 
+        </blockquote>
+      </div>
+      </div>
+      `;
+      document.getElementsByTagName("content")[0].innerHTML = htmlStr;
+    }
+
+    function render_text() {
+      words = LARGE_TRANSCRIPT.split('.');
+      htmlStr = "<ul>"
+      words.forEach(element => {
+        htmlStr += "\n";
+        htmlStr += "<li>"
+        htmlStr += element
+        htmlStr += "</li>"
+      });
+      htmlStr += "</ul>"
+      document.getElementsByTagName("content")[0].innerHTML = htmlStr;
     }
 
     var STATE_NAME = "WORDCLOUD"
@@ -110,6 +149,10 @@
     function render_state() {
       if (STATE_NAME == "WORDCLOUD") {
         render_wordcloud()
+      } else if (STATE_NAME == "QUOTATION") {
+        render_quotation()
+      } else if (STATE_NAME == "TEXT") {
+        render_text()
       }
     }
 
@@ -125,7 +168,6 @@
         'cb8b6618675735c7896101b9377f325f1a5a9e80',
       ])
       socket.onopen = () => {
-        document.querySelector('#status').textContent = 'Connected'
         console.log({ event: 'onopen' })
         mediaRecorder.addEventListener('dataavailable', async (event) => {
           if (event.data.size > 0 && socket.readyState == 1) {
@@ -136,12 +178,10 @@
       }
 
       socket.onmessage = (message) => {
-
         const received = JSON.parse(message.data)
         if (update_state(received)) {
           render_state()
         };
-        const transcript = received.channel.alternatives[0].transcript
       }
 
       socket.onclose = () => {
@@ -153,6 +193,29 @@
       }
     })
   </script>
+
+  <style>
+    blockquote {text-align: center;}
+    .container {
+      height: 200px;
+      position: relative;
+      border: 3px solid rgb(218, 122, 247);
+      background-color: rgb(167, 236, 250);
+    }
+
+  .vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+#quote-string {
+  font-size: 25px;
+}
+  </style>
+
 </body>
 
 </html>
