@@ -1,5 +1,13 @@
 # ProcastiPoint!
 ![Screenshot](img/usage.jpg)
+
+## Features
+Creates presentation automatically and in realtime as the demonstrator presents. There are 5 modes in this version, switched by key operation.
+* <kbd>w</kbd> - Word Cloud, updates word cloud realtime, size of word increases by the number of times it is spoken. (Default)
+* <kbd>t</kbd> - Text. Automatically creates list of bullet points.
+* <kbd>l</kbd> - Translation. Translates spoken English into Russian text in bullet points.
+* <kbd>q</kbd> - Quotation. Present quote together with an image of the auther.
+* <kbd>i</kbd> - Image. Show image of the keyword.
 ## Inspiration
 Coursework at Cambridge is tough, so we strived to make a program that made presentations easier. Our program creates a slodeshow on the fly using DeepGram's API.
 
