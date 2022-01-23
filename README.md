@@ -9,7 +9,7 @@ Creates presentation automatically and in realtime as the demonstrator presents.
 * <kbd>q</kbd> - Quotation. Present quote together with an image of the auther.
 * <kbd>i</kbd> - Image. Show image of the keyword.
 
-Translation language can easily changed by changing the language code ```"fr"``` shown below.
+Translation language can be easily changed by modifying the language code ```"fr"``` shown below.
 ```javascript
 	function render_translation() {
 		serverSocket.emit('translate', [LARGE_TRANSCRIPT, "fr"]);
