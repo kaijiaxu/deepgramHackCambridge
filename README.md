@@ -1,5 +1,5 @@
 # ProcastiPoint!
-![Screenshot](img/thumbnail.jpg)
+![Screenshot](img/usage.jpg)
 ## Inspiration
 Coursework at Cambridge is tough, so we strived to make a program that made presentations easier. Our program creates a slodeshow on the fly using DeepGram's API.
 
