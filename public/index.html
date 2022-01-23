@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+</head>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://rawgit.com/jasondavies/d3-cloud/master/build/d3.layout.cloud.js"></script>
+
+<body>
+  <content>
+
+  </content>
+  <script>
+
+    const stopwords = ['i','me','my','myself','we','our','ours','ourselves','you','your','yours','yourself','yourselves','he','him','his','himself','she','her','hers','herself','it','its','itself','they','them','their','theirs','themselves','what','which','who','whom','this','that','these','those','am','is','are','was','were','be','been','being','have','has','had','having','do','does','did','doing','a','an','the','and','but','if','or','because','as','until','while','of','at','by','for','with','about','against','between','into','through','during','before','after','above','below','to','from','up','down','in','out','on','off','over','under','again','further','then','once','here','there','when','where','why','how','all','any','both','each','few','more','most','other','some','such','no','nor','not','only','own','same','so','than','too','very','s','t','can','will','just','don','should','now']
+
+    //Based on https://github.com/jasondavies/d3-cloud/blob/master/examples/simple.html
+    // Encapsulate the word cloud functionality
+    function wordCloud(selector) {
+
+      var fill = d3.scale.category20();
+      //Construct the word cloud's SVG element
+      var svg = d3.select(selector).append("svg")
+        .attr("width", 1400)
+        .attr("height", 700)
+        .append("g")
+        .attr("transform", "translate(700,350)");
+
+
+      //Draw the word cloud
+      function draw(words) {
+        var cloud = svg.selectAll("g text")
+          .data(words, function (d) { return d.text; })
+
+        //Entering words
+        cloud.enter()
+          .append("text")
+          .style("font-family", "Impact")
+          .style("fill", function (d, i) { return fill(i); })
+          .attr("text-anchor", "middle")
+          .attr('font-size', 1)
+          .text(function (d) { return d.text; });
+
+        //Entering and existing words
+        cloud
+          .transition()
+          .duration(600)
+          .style("font-size", function (d) { return d.size + "px"; })
+          .attr("transform", function (d) {
+            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+          })
+          .style("fill-opacity", 1);
+
+        //Exiting words
+        cloud.exit()
+          .transition()
+          .duration(200)
+          .style('fill-opacity', 1e-6)
+          .attr('font-size', 1)
+          .remove();
+      }
+
+
+      //Use the module pattern to encapsulate the visualisation code. We'll
+      // expose only the parts that need to be public.
+      return {
+
+        //Recompute the word cloud for a new set of words. This method will
+        // asycnhronously call draw when the layout has been computed.
+        //The outside world will need to call this function, so make it part
+        // of the wordCloud return value.
+        update: function (words) {
+          d3.layout.cloud().size([1400, 700])
+            .words(words)
+            .padding(5)
+            .rotate(function () { return ~~(Math.random() * 2) * 90; })
+            .font("Impact")
+            .fontSize(function (d) { return d.size; })
+            .on("end", draw)
+            .start();
+        }
+      }
+    }
+
+    ind = 0;
+
+    document.addEventListener('keydown', event => {
+      if (event.keyCode === 81) {
+		LARGE_TRANSCRIPT = "";
+        STATE_NAME = "QUOTATION";
+        ind = (ind + 1) % 3;
+      } else if (event.keyCode === 84) {
+		LARGE_TRANSCRIPT = "";
+        STATE_NAME = "TEXT";
+      } else if (event.keyCode === 87) {
+		LARGE_TRANSCRIPT = "";
+        STATE_NAME = "WORDCLOUD";
+      } else if (event.keyCode === 73) {
+		LARGE_TRANSCRIPT = "";
+		STATE_NAME = "IMAGE";
+	  } else if (event.keyCode === 76) {
+		STATE_NAME = "TRANSLATION";
+	  }
+      render_state();
+    });
+
+    function render_wordcloud() {
+      document.getElementsByTagName("content")[0].innerHTML = ""
+      let counts = {};
+      LARGE_TRANSCRIPT = LARGE_TRANSCRIPT.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+      for (let word of LARGE_TRANSCRIPT.split(' ')) {
+        word = word.toLowerCase();
+        counts[word] = counts[word] ? counts[word] + 1 : 1;
+      }
+      var instructions = []
+      for (const [key, value] of Object.entries(counts)) {
+        if(!stopwords.includes(key)) {
+          instructions.push({ "text": key, "size": 30 + 20 * value })
+        };
+      }
+      wordCloud("content").update(instructions)
+    }
+
+    function getRandomInt(max) {
+      return Math.floor(Math.random() * max)
+    }
+
+    function render_quotation() {
+      scientists = ["Nikola Tesla", "Michael Faraday", "Albert Einstein"]
+      dimensions = []
+      urls = ["https://media.nationalgeographic.org/assets/photos/324/759/f452545d-0c94-42c7-a2ff-245c51842087.jpg",
+      "https://www.biography.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cg_face%2Cq_auto:good%2Cw_300/MTgwOTkyMzYzODEwNzkyNTM2/gettyimages-666932578.jpg",
+      "https://static.parade.com/wp-content/uploads/2021/08/albert-einstein-quotes.jpg"]
+      scientist = scientists[ind];
+      sURL = urls[ind];
+      htmlStr = `
+      <div class="container" id="quote-display">
+      <div class="vertical-center"> 
+        <blockquote>
+          <i id = "quote-string"> ${LARGE_TRANSCRIPT} </i> 
+          <br>
+          <i id="quote-author">- ${scientist}</i>
+        </blockquote>
+      </div>
+      </div>
+      <img src=${sURL} width="200" height="300"/> 
+      `;
+      document.getElementsByTagName("content")[0].innerHTML = htmlStr;
+    }
+
+    function render_text() {
+      words = LARGE_TRANSCRIPT.split('.');
+      htmlStr = "<ul>"
+      words.forEach(element => {
+        htmlStr += "\n";
+        htmlStr += "<li>"
+        htmlStr += element
+        htmlStr += "</li>"
+      });
+      htmlStr += "</ul>"
+      document.getElementsByTagName("content")[0].innerHTML = htmlStr;
+    }
+
+	function render_lang(translations) {
+		// translations.forEach((translation, i) => {
+		// 	text += translation;
+		// });
+		console.log(translations);
+		words = translations.split('.');
+		htmlStr = "<ul>";
+      	words.forEach(element => {
+        	htmlStr += "\n";
+        	htmlStr += "<li>"
+        	htmlStr += element
+        	htmlStr += "</li>"
+      	});
+      	htmlStr += "</ul>"
+      	document.getElementsByTagName("content")[0].innerHTML = htmlStr;
+	}
+
+	const serverSocket = io();
+
+	async function asyncWait() {
+		await wait(1000);
+	}
+
+	function wait(time) {
+		return new Promise(resolve => {
+			setTimeout(() => {
+				resolve();
+			}, time);
+		});
+	}
+
+	function render_image() {
+		LARGE_TRANSCRIPT = LARGE_TRANSCRIPT.replace(/[.,\/?#!$%\^&\*;:{}=\-_`~()]/g, "");
+		if (LARGE_TRANSCRIPT != "") {
+			serverSocket.emit('image', LARGE_TRANSCRIPT);
+		}
+		asyncWait();
+		// await new Promise(r => setTimeout(r, 2000));
+	}
+
+	function render_translation() {
+		serverSocket.emit('translate', [LARGE_TRANSCRIPT, "ru"]);
+	}
+
+	serverSocket.on('translateBack', data => {
+		render_lang(data);
+	});
+
+	serverSocket.on('imageBack', data => {
+		htmlStr = `<img src=${data["images_results"][0]["original"]} width=100 height=150/>`
+		document.getElementsByTagName("content")[0].innerHTML = htmlStr;
+	});
+
+
+    var STATE_NAME = "WORDCLOUD"
+    var LARGE_TRANSCRIPT = ""
+
+    function update_state(data) {
+      if (data.channel.alternatives[0].transcript && data.is_final) {
+        LARGE_TRANSCRIPT += ' ' + data.channel.alternatives[0].transcript
+        console.log(LARGE_TRANSCRIPT)
+        return true
+      }
+      return false
+    }
+
+    function render_state() {
+      if (STATE_NAME == "WORDCLOUD") {
+        render_wordcloud()
+      } else if (STATE_NAME == "QUOTATION") {
+        render_quotation()
+      } else if (STATE_NAME == "TEXT") {
+        render_text()
+      } else if (STATE_NAME == "IMAGE") {
+		  render_image();
+	  } else if (STATE_NAME == "TRANSLATION") {
+		  render_translation();
+	  }
+    }
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      console.log({ stream })
+      if (!MediaRecorder.isTypeSupported('audio/webm'))
+        return alert('Browser not supported')
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm',
+      })
+      const socket = new WebSocket('wss://api.deepgram.com/v1/listen?punctuate=true&utterances=false', [
+        'token',
+        'cb8b6618675735c7896101b9377f325f1a5a9e80',
+      ])
+      socket.onopen = () => {
+        console.log({ event: 'onopen' })
+        mediaRecorder.addEventListener('dataavailable', async (event) => {
+          if (event.data.size > 0 && socket.readyState == 1) {
+            socket.send(event.data)
+          }
+        })
+        mediaRecorder.start(1000)
+      }
+
+      socket.onmessage = (message) => {
+        const received = JSON.parse(message.data)
+        if (update_state(received)) {
+          render_state()
+        };
+      }
+
+      socket.onclose = () => {
+        console.log({ event: 'onclose' })
+      }
+
+      socket.onerror = (error) => {
+        console.log({ event: 'onerror', error })
+      }
+    })
+  </script>
+
+  <style>
+    blockquote {text-align: center;}
+    .container {
+      height: 200px;
+      position: relative;
+      border: 3px solid rgb(218, 122, 247);
+      background-color: rgb(167, 236, 250);
+    }
+
+  .vertical-center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+  }
+
+  #quote-string {
+    font-size: 25px;
+  }
+
+  ul {
+    font-size: 16pt
+  }
+  
+  body {
+    font-family: Arial
+  }
+  </style>
+
+</body>
+
+</html>
