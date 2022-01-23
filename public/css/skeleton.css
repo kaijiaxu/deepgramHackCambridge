@@ -288,7 +288,8 @@ label > .label-body {
 /* Lists
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 ul {
-  list-style: circle inside; }
+  list-style: circle inside;
+  margin: 10px}
 ol {
   list-style: decimal inside; }
 ol, ul {
@@ -302,6 +303,11 @@ ol ul {
   font-size: 90%; }
 li {
   margin-bottom: 1rem; }
+
+  img {
+  display: block;
+  margin-right: auto;
+  margin-left: auto}
 
 
 /* Code

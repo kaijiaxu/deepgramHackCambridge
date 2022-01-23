@@ -1,7 +1,7 @@
 {
   "name": "deepgramhackcambridge",
   "version": "1.0.0",
-  "description": "",
+  "description": "![Screenshot](img/usage.jpg) ## Inspiration Coursework at Cambridge is tough, so we strived to make a program that made presentations easier. Our program creates a slodeshow on the fly using DeepGram's API.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,7 +18,12 @@
   "homepage": "https://github.com/kaijiaxu/deepgramHackCambridge#readme",
   "dependencies": {
     "@google-cloud/translate": "^6.3.1",
+    "express": "^4.17.2",
     "google-search-results-nodejs": "^2.1.0",
+    "socket.io": "^4.4.1",
     "wordpos": "^2.1.0"
+  },
+  "directories": {
+    "lib": "lib"
   }
 }

@@ -129,7 +129,7 @@
     }
 
     function render_quotation() {
-      scientists = ["Nikola Tesla", "Michael Faraday", "Albert Einstein"]
+      scientists = ["Isaac Newton", "Nikola Tesla", "Albert Einstein"]
       dimensions = []
       urls = ["https://media.nationalgeographic.org/assets/photos/324/759/f452545d-0c94-42c7-a2ff-245c51842087.jpg",
       "https://www.biography.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cg_face%2Cq_auto:good%2Cw_300/MTgwOTkyMzYzODEwNzkyNTM2/gettyimages-666932578.jpg",
@@ -171,14 +171,14 @@
 		// });
 		console.log(translations);
 		words = translations.split('.');
-		htmlStr = "<ul>";
+		htmlStr = "<div class=\"container\" style=\"margin-top: 100px;\"><ul>"
       	words.forEach(element => {
         	htmlStr += "\n";
         	htmlStr += "<li>"
         	htmlStr += element
         	htmlStr += "</li>"
       	});
-      	htmlStr += "</ul>"
+      	htmlStr += "</ul></div>"
       	document.getElementsByTagName("content")[0].innerHTML = htmlStr;
 	}
 
@@ -206,7 +206,7 @@
 	}
 
 	function render_translation() {
-		serverSocket.emit('translate', [LARGE_TRANSCRIPT, "ru"]);
+		serverSocket.emit('translate', [LARGE_TRANSCRIPT, "fr"]);
 	}
 
 	serverSocket.on('translateBack', data => {
@@ -214,7 +214,7 @@
 	});
 
 	serverSocket.on('imageBack', data => {
-		htmlStr = `<img src=${data["images_results"][0]["original"]} width=100 height=150/>`
+		htmlStr = `<img src=${data["images_results"][0]["original"]} width=300 height=400/>`
 		document.getElementsByTagName("content")[0].innerHTML = htmlStr;
 	});
 
